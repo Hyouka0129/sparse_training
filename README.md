@@ -4,7 +4,6 @@
 
 ```bash
 $ cd sparse_training
-$ pip install -r requirements.txt
 $ python train.py
 ```
 
