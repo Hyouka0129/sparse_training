@@ -40,7 +40,7 @@ class ResidualBlock(nn.Module):
         self.shortcut = nn.Sequential()
         if stride != 1 or in_channels != self.expansion*out_channels:
             self.shortcut = nn.Sequential(
-                nn.Conv2d(in_channels, self.expansion*out_channels, kernel_size=1, stride=stride, bias=False),
+                nn.Conv2d(in_channels, self.expansion*out_channels, kernel_size=1, stride=stride, bias=False).requires_grad_(False),
                 nn.BatchNorm2d(self.expansion*out_channels)
             )
 
@@ -90,3 +90,4 @@ model =ResNet(ResidualBlock, [2,2,2])
 
 # Print the model architecture
 print(model)
+
