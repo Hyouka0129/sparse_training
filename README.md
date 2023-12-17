@@ -15,9 +15,9 @@ Modify `sparsity_ratio` in `model_generator.py`
 
 baseline 82.92% 
 
-sparsity_ratio=[0.25,0.25,0.25,0.25,0.25,0.25] 82.79% saving 52% weights
+sparsity_ratio=[0.25,0.25,0.25,0.25,0.25,0.25] 82.79% saving 28% weights
 
-sparsity_ratio=[0.5,0.5,0.5,0.5,0.5,0.5] 79.65%
+sparsity_ratio=[0.5,0.5,0.5,0.5,0.5,0.5] 79.65% saving 52% weights
 
 sparsity_ratio=[0.25,0.5,0.25,0.5,0.25,0.5] 80.86%
 
