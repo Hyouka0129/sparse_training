@@ -2,7 +2,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-sparsity_ratio=[0.5,0.5,0.5,0.5,0.5,0.5]
+sparsity_ratio=[0,0,0,0,0,0]
 #sparsity ratio of CONV2D in three residual blocks, 5 levels of sparsity{0,0.25,0.5,0.75,1}
 
 class ResidualBlock(nn.Module):
@@ -53,26 +53,17 @@ class ResidualBlock(nn.Module):
         return out
 
 class ResNet(nn.Module):
-    def __init__(self, block, num_blocks, num_classes=10):
+    def __init__(self, block, num_classes=10):
         super(ResNet, self).__init__()
         self.in_channels = 16
         print("sparsity scheme:",sparsity_ratio)
         self.conv1 = nn.Conv2d(3, 16, kernel_size=3, stride=1, padding=1, bias=False)
         self.conv1.requires_grad_(False)#in mcunet starting layers are fixed
         self.bn1 = nn.BatchNorm2d(16)
-        self.layer1 = self._make_layer(block, 16, num_blocks[0], stride=1,sparsity1=sparsity_ratio[0],sparsity2=sparsity_ratio[1])
-        self.layer2 = self._make_layer(block, 32, num_blocks[1], stride=2,sparsity1=sparsity_ratio[2],sparsity2=sparsity_ratio[3])
-        self.layer3 = self._make_layer(block, 64, num_blocks[2], stride=2,sparsity1=sparsity_ratio[4],sparsity2=sparsity_ratio[5])
+        self.layer1 = block(sparsity1=sparsity_ratio[0],sparsity2=sparsity_ratio[1],in_channels=16,out_channels=16,stride=1)
+        self.layer2 = block(sparsity1=sparsity_ratio[2],sparsity2=sparsity_ratio[3],in_channels=16,out_channels=32,stride=2)
+        self.layer3 = block(sparsity1=sparsity_ratio[4],sparsity2=sparsity_ratio[5],in_channels=32,out_channels=64,stride=2)
         self.linear = nn.Linear(64, num_classes)
-
-
-    def _make_layer(self, block, out_channels, num_blocks, stride,sparsity1,sparsity2):
-        strides = [stride] + [1]*(num_blocks-1)
-        layers = []
-        for stride in strides:
-            layers.append(block(sparsity1=sparsity1,sparsity2=sparsity2,in_channels=self.in_channels,out_channels=out_channels,stride=stride))
-            self.in_channels = out_channels * block.expansion
-        return nn.Sequential(*layers)
 
     def forward(self, x):
         out = F.relu(self.bn1(self.conv1(x)))
@@ -86,8 +77,7 @@ class ResNet(nn.Module):
 
 
 # Instantiate the model
-model =ResNet(ResidualBlock, [2,2,2])
+model =ResNet(ResidualBlock)
 
 # Print the model architecture
 print(model)
-
