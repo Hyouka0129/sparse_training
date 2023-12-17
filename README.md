@@ -23,3 +23,5 @@ sparsity_ratio=[0.25,0.5,0.25,0.5,0.25,0.5] 80.86%
 
 sparsity_ratio=[0.5,0.25,0.5,0.25,0.5,0.25] 80.40%
 
+sparsity_ratio=[0.25,0.25,0.25,0.25,0.25,0.25] with fp8/16 mixed_precision training 78.50%
+
