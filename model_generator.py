@@ -5,79 +5,53 @@ import torch.nn.functional as F
 sparsity_ratio=[0,0,0,0,0,0]
 #sparsity ratio of CONV2D in three residual blocks, 5 levels of sparsity{0,0.25,0.5,0.75,1}
 
-class ResidualBlock(nn.Module):
-    expansion = 1
-
-    def __init__(self, sparsity1,sparsity2,in_channels, out_channels, stride):
-        super(ResidualBlock, self).__init__()
-        self.conv11= nn.Conv2d(in_channels, int(out_channels/4), kernel_size=3, stride=stride, padding=1, bias=False)
-        self.conv12= nn.Conv2d(in_channels, int(out_channels/4), kernel_size=3, stride=stride, padding=1, bias=False)
-        self.conv13= nn.Conv2d(in_channels, int(out_channels/4), kernel_size=3, stride=stride, padding=1, bias=False)
-        self.conv14= nn.Conv2d(in_channels, int(out_channels/4), kernel_size=3, stride=stride, padding=1, bias=False)
-        self.conv21= nn.Conv2d(out_channels, int(out_channels/4), kernel_size=3, stride=1, padding=1, bias=False)
-        self.conv22= nn.Conv2d(out_channels, int(out_channels/4), kernel_size=3, stride=1, padding=1, bias=False)
-        self.conv23= nn.Conv2d(out_channels, int(out_channels/4), kernel_size=3, stride=1, padding=1, bias=False)
-        self.conv24= nn.Conv2d(out_channels, int(out_channels/4), kernel_size=3, stride=1, padding=1, bias=False)
-        self.conv11.requires_grad_(False)
-        if sparsity1>=0.25:
-            self.conv11.requires_grad_(False)
-            if sparsity1>=0.5:
-                self.conv12.requires_grad_(False)
-                if sparsity1>=0.75:
-                    self.conv13.requires_grad_(False)
-                    if sparsity1>=1:
-                        self.conv14.requires_grad_(False)
-        if sparsity2>=0.25:
-            self.conv21.requires_grad_(False)
-            if sparsity2>=0.5:
-                self.conv22.requires_grad_(False)
-                if sparsity2>=0.75:
-                    self.conv23.requires_grad_(False)
-                    if sparsity2>=1:
-                        self.conv24.requires_grad_(False)
-        self.bn1 = nn.BatchNorm2d(out_channels)
-        self.bn2 = nn.BatchNorm2d(out_channels)
-        self.shortcut = nn.Sequential()
-        if stride != 1 or in_channels != self.expansion*out_channels:
-            self.shortcut = nn.Sequential(
-                nn.Conv2d(in_channels, self.expansion*out_channels, kernel_size=1, stride=stride, bias=False).requires_grad_(False),
-                nn.BatchNorm2d(self.expansion*out_channels)
-            )
-
-    def forward(self, x):
-        out = torch.cat([self.conv11(x),self.conv12(x),self.conv13(x),self.conv14(x)],dim=1)
-        out=F.relu(self.bn1(out))
-        out = self.bn2(torch.cat([self.conv21(out),self.conv22(out),self.conv23(out),self.conv24(out)],dim=1))
-        out += self.shortcut(x)
-        out = F.relu(out)
-        return out
-
 class ResNet(nn.Module):
-    def __init__(self, block, num_classes=10):
+    def __init__(self, num_classes=10):
         super(ResNet, self).__init__()
         self.in_channels = 16
         print("sparsity scheme:",sparsity_ratio)
         self.conv1 = nn.Conv2d(3, 16, kernel_size=3, stride=1, padding=1, bias=False)
-        self.conv1.requires_grad_(False)#in mcunet starting layers are fixed
         self.bn1 = nn.BatchNorm2d(16)
-        self.layer1 = block(sparsity1=sparsity_ratio[0],sparsity2=sparsity_ratio[1],in_channels=16,out_channels=16,stride=1)
-        self.layer2 = block(sparsity1=sparsity_ratio[2],sparsity2=sparsity_ratio[3],in_channels=16,out_channels=32,stride=2)
-        self.layer3 = block(sparsity1=sparsity_ratio[4],sparsity2=sparsity_ratio[5],in_channels=32,out_channels=64,stride=2)
+        self.conv2 = nn.Conv2d(16, 16, kernel_size=3, stride=1, padding=1, bias=False)
+        self.bn2 = nn.BatchNorm2d(16)
+        self.conv3 = nn.Conv2d(16, 16, kernel_size=3, stride=1, padding=1, bias=False)
+        self.bn3 = nn.BatchNorm2d(16)
+        self.conv4 = nn.Conv2d(16, 32, kernel_size=3, stride=2, padding=1, bias=False)
+        self.bn4 = nn.BatchNorm2d(32)
+        self.conv5 = nn.Conv2d(32, 32, kernel_size=3, stride=1, padding=1, bias=False)
+        self.bn5 = nn.BatchNorm2d(32)
+        self.conv6 = nn.Conv2d(16, 32, kernel_size=3, stride=2, padding=1, bias=False)
+        self.bn6 = nn.BatchNorm2d(32)
+        self.conv7 = nn.Conv2d(32, 64, kernel_size=3, stride=2, padding=1, bias=False)
+        self.bn7 = nn.BatchNorm2d(64)
+        self.conv8 = nn.Conv2d(64, 64, kernel_size=3, stride=1, padding=1, bias=False)
+        self.bn8 = nn.BatchNorm2d(64)
+        self.conv9 = nn.Conv2d(32, 64, kernel_size=3, stride=2, padding=1, bias=False)
+        self.bn9 = nn.BatchNorm2d(64)
         self.linear = nn.Linear(64, num_classes)
 
     def forward(self, x):
-        out = F.relu(self.bn1(self.conv1(x)))
-        out = self.layer1(out)
-        out = self.layer2(out)
-        out = self.layer3(out)
-        out = F.avg_pool2d(out, 8)
+        out1 = F.relu(self.bn1(self.conv1(x)))
+        out2 = F.relu(self.bn2(self.conv2(out1)))
+        out2 = self.bn3(self.conv3(out2))
+        out2 += out1
+        out2 = F.relu(out2)
+        out3 = F.relu(self.bn4(self.conv4(out2)))
+        out3 = self.bn5(self.conv5(out3))
+        out3 += self.bn6(self.conv6(out2))
+        out3 = F.relu(out3)
+        out4 = F.relu(self.bn7(self.conv7(out3)))
+        out4 = self.bn8(self.conv8(out4))
+        out4 += self.bn9(self.conv9(out3))
+        out4 = F.relu(out4)
+        out = F.avg_pool2d(out4, 8)
         out = out.view(out.size(0), -1)
         out = self.linear(out)
         return F.log_softmax(out, dim=-1)    
 
 
 # Instantiate the model
-model =ResNet(ResidualBlock)
+model =ResNet()
 
 # Print the model architecture
 print(model)
