@@ -6,7 +6,7 @@ every encoder has two selfattention & a MLP
 
 ## test
 
-'python train_transformer.py'
+`python train_transformer.py`
 
 baseline 83.64% 
 
