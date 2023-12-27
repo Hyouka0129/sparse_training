@@ -1,4 +1,4 @@
-# Vit_b_16
+# Vit_b_16 86M
 
 consists of 12 encoders
 
@@ -20,8 +20,8 @@ only updating last 2 encoders 83.44%
 
 only updating last 1/3 encoders 83.23%
 
-only updating last 3 attention 82.62%
+only updating last 3 attention 82.62% 7M
 
-only updating 1/2 attentionhead of 10th encoder, 1/2 attentionhead of 11th encoder, full attention of 12th 
+only updating 1/2 attentionhead of 10th encoder, 1/2 attentionhead of 11th encoder, full attention of 12th 83.04% 4.8M
 
 
