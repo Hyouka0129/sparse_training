@@ -6,6 +6,8 @@ every encoder has two selfattention & a MLP
 
 ## test
 
+'python train_transformer.py'
+
 baseline 83.64% 
 
 only updating classifier 72.06%
