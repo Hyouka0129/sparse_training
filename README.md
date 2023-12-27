@@ -1,27 +1,25 @@
-# Sparse_training
+# Vit_b_16
 
-## Usage
+consists of 12 encoders
 
-```bash
-$ cd sparse_training
-$ python train.py
-```
-
-## Modify sparsity scheme
-
-Modify `sparsity_ratio` in `model_generator.py`
+every encoder has two selfattention & a MLP
 
 ## test
 
-baseline 82.92% 
+baseline 83.64% 
 
-sparsity_ratio=[0.25,0.25,0.25,0.25,0.25,0.25] 82.79% saving 28% weights
+only updating classifier 72.06%
 
-sparsity_ratio=[0.5,0.5,0.5,0.5,0.5,0.5] 79.65% saving 52% weights
+freeze all attention 81.56%
 
-sparsity_ratio=[0.25,0.5,0.25,0.5,0.25,0.5] 80.86%
+only updating last encoder 81.96%
 
-sparsity_ratio=[0.5,0.25,0.5,0.25,0.5,0.25] 80.40%
+only updating last 2 encoders 83.44%
 
-sparsity_ratio=[0.25,0.25,0.25,0.25,0.25,0.25] with fp8/16 mixed_precision training 78.50%
+only updating last 1/3 encoders 83.23%
+
+only updating last 3 attention 82.62%
+
+only updating 1/2 attentionhead of 10th encoder, 1/2 attentionhead of 11th encoder, full attention of 12th 
+
 
