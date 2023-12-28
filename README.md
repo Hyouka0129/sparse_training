@@ -24,4 +24,8 @@ only updating last 3 attention 82.62% 7M
 
 only updating 1/2 attentionhead of 10th encoder, 1/2 attentionhead of 11th encoder, full attention of 12th 83.04% 4.8M
 
+BF16
 
+baseline 81%
+
+only updating last 3 attention 78.9% 
